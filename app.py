@@ -342,7 +342,7 @@ st.divider()
 # ---------------------------------------------------------------------------
 st.subheader("Transaction Search")
 
-search_query = st.text_input("Search by partner name or booking details", placeholder="e.g. BILLA, IKEA, Miglena...")
+search_query = st.text_input("Search by partner name or booking details", placeholder="e.g. BILLA, IKEA")
 
 if search_query:
     query_lower = search_query.lower()
