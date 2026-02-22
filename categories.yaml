@@ -1,0 +1,133 @@
+# Category keyword mapping for Erste Bank (George) CSV exports
+# Keywords are matched case-insensitively against Partner Name + Booking details
+# First match wins — place more specific categories above broader ones
+#
+# Customize this file with your own keywords and categories
+
+Adjustments:
+  # One-off corrections (e.g. refunds that need to be sent back)
+  # Add keywords here for transactions that should be excluded from income/expense totals
+
+Salary:
+  - SALARY
+
+Bank Fees:
+  - Kontoführung
+  - Bereitstellung
+  - Bonus Kontoführung
+  - Abschlussbuchung
+
+Insurance:
+  - UNIQA
+  - Versicherung
+  - DONAU Versicherung
+  - WIENER STAEDTISCHE
+  - GENERALI
+  - ALLIANZ
+
+Savings/Transfers:
+  - George-Transfer
+
+Investing:
+  - Interactive Brokers
+  - Trade Republic
+  - Traderepublic
+  - Flatex
+
+Groceries:
+  - BILLA
+  - SPAR
+  - INTERSPAR
+  - HOFER
+  - LIDL
+  - PENNY
+  - MERKUR
+
+Dining:
+  - RESTAURANT
+  - MCDONALDS
+  - BURGER KING
+  - STARBUCKS
+  - KEBAB
+  - KEBAP
+  - BACKEREI
+  - BACKWERK
+  - FELBER
+  - GEIER
+  - JOSEPH BROT
+  - DER MANN
+  - STROECK
+  - STROCK
+  - CAFE
+  - GELATO
+  - DEMEL
+  - TGTG
+
+Health:
+  - APOTHEKE
+  - ORDINATION
+  - KINDERARZT
+  - Johanniter
+
+Shopping:
+  - AMAZON
+  - AMZN
+  - DM-FIL
+  - MUELLER
+  - BIPA
+  - THALIA
+  - IKEA
+  - MEDIA MARKT
+  - OBI BAU
+  - PAGRO
+  - XXXLUTZ
+  - DECATHLON
+  - C&A
+  - TK MAXX
+  - FIELMANN
+
+Transport:
+  - OEBB
+  - WIENER LINIEN
+  - WIEN MOBIL
+  - NEXTBIKE
+  - RYANAIR
+  - FLIX
+
+Car:
+  - BP TANKSTELLE
+  - SHELL
+  - HANDYPARKE
+  - TIEFGARAGE
+  - PARKPLATZ
+
+Subscriptions:
+  - AMAZON PRIM
+  - AMZNPRIME
+  - T-Mobile
+  - A1 Telekom
+  - FITINN
+  - Fit Fabrik
+
+Entertainment:
+  - KONZERTHAUS
+  - ALBERTINA
+  - TECHNISCHES MUSEUM
+  - NHM
+  - THERME WIEN
+  - HAYDN KINO
+  - HAYDNKINO
+
+Housing:
+  - FA Österreich
+
+Cash Withdrawal:
+  - ATM
+  - AUTOMAT
+  - SB-Auszahlung
+
+House Utilities:
+  - WIEN ENERGIE
+
+Rent:
+  # Add your landlord's name here
