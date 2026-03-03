@@ -57,18 +57,24 @@ def _parse_amount(val) -> float:
         return 0.0
 
 
-def _categorize(row: pd.Series, categories: dict[str, list[str]]) -> str:
-    """Return the first matching category for a transaction row."""
+def _categorize(row: pd.Series, categories: dict) -> tuple[str, str]:
+    """Return (category, subcategory) for a transaction row."""
     partner = str(row.get("Partner Name", "")).lower()
     details = str(row.get("Booking details", "")).lower()
     text = f"{partner} {details}"
 
     for category, keywords in categories.items():
-        for kw in (keywords or []):
-            if kw.lower() in text:
-                return category
+        if isinstance(keywords, list):
+            for kw in (keywords or []):
+                if kw.lower() in text:
+                    return (category, "")
+        elif isinstance(keywords, dict):
+            for subcategory, subkws in keywords.items():
+                for kw in (subkws or []):
+                    if kw.lower() in text:
+                        return (category, subcategory)
 
-    return "Uncategorized"
+    return ("Uncategorized", "")
 
 
 def _classify_type(row: pd.Series) -> str:
@@ -92,7 +98,9 @@ def load_data() -> pd.DataFrame:
         return raw
 
     categories = _load_categories()
-    raw["category"] = raw.apply(lambda r: _categorize(r, categories), axis=1)
+    raw[["category", "subcategory"]] = raw.apply(
+        lambda r: _categorize(r, categories), axis=1, result_type="expand"
+    )
 
     df = raw.rename(columns={
         "Booking Date": "date",
@@ -109,6 +117,6 @@ def load_data() -> pd.DataFrame:
 
     # Keep only useful columns
     df = df[["date", "partner_name", "amount", "currency",
-             "booking_details", "category", "type", "year_month"]]
+             "booking_details", "category", "subcategory", "type", "year_month"]]
     df = df.sort_values("date", ascending=False).reset_index(drop=True)
     return df
