@@ -64,7 +64,7 @@ def _categorize(row: pd.Series, categories: dict[str, list[str]]) -> str:
     text = f"{partner} {details}"
 
     for category, keywords in categories.items():
-        for kw in keywords:
+        for kw in (keywords or []):
             if kw.lower() in text:
                 return category
 
