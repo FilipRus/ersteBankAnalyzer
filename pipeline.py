@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -57,6 +58,11 @@ def _parse_amount(val) -> float:
         return 0.0
 
 
+def _kw_match(kw: str, text: str) -> bool:
+    """Return True if keyword matches as a whole word (case-insensitive)."""
+    return bool(re.search(r'\b' + re.escape(kw.lower()) + r'\b', text))
+
+
 def _categorize(row: pd.Series, categories: dict) -> tuple[str, str]:
     """Return (category, subcategory) for a transaction row."""
     partner = str(row.get("Partner Name", "")).lower()
@@ -66,12 +72,12 @@ def _categorize(row: pd.Series, categories: dict) -> tuple[str, str]:
     for category, keywords in categories.items():
         if isinstance(keywords, list):
             for kw in (keywords or []):
-                if kw.lower() in text:
+                if _kw_match(kw, text):
                     return (category, "")
         elif isinstance(keywords, dict):
             for subcategory, subkws in keywords.items():
                 for kw in (subkws or []):
-                    if kw.lower() in text:
+                    if _kw_match(kw, text):
                         return (category, subcategory)
 
     return ("Uncategorized", "")
