@@ -58,26 +58,33 @@ def _parse_amount(val) -> float:
         return 0.0
 
 
-def _kw_match(kw: str, text: str) -> bool:
-    """Return True if keyword matches as a whole word (case-insensitive)."""
-    return bool(re.search(r'\b' + re.escape(kw.lower()) + r'\b', text))
+def _kw_match(kw: str, partner: str, details: str) -> bool:
+    """Match keyword against partner name using prefix/substring match (partner
+    names are structured identifiers, so partial prefix matches are intentional,
+    e.g. FLIX matches FLIXBUS.COM). Falls back to booking details with whole-word
+    matching only when partner name is absent."""
+    kw_lower = kw.lower()
+    if partner:
+        return kw_lower in partner
+    return bool(re.search(r'\b' + re.escape(kw_lower) + r'\b', details))
 
 
 def _categorize(row: pd.Series, categories: dict) -> tuple[str, str]:
     """Return (category, subcategory) for a transaction row."""
-    partner = str(row.get("Partner Name", "")).lower()
-    details = str(row.get("Booking details", "")).lower()
-    text = f"{partner} {details}"
+    partner_raw = row.get("Partner Name", "")
+    details_raw = row.get("Booking details", "")
+    partner = "" if pd.isna(partner_raw) else str(partner_raw).lower().strip()
+    details = "" if pd.isna(details_raw) else str(details_raw).lower().strip()
 
     for category, keywords in categories.items():
         if isinstance(keywords, list):
             for kw in (keywords or []):
-                if _kw_match(kw, text):
+                if _kw_match(kw, partner, details):
                     return (category, "")
         elif isinstance(keywords, dict):
             for subcategory, subkws in keywords.items():
                 for kw in (subkws or []):
-                    if _kw_match(kw, text):
+                    if _kw_match(kw, partner, details):
                         return (category, subcategory)
 
     return ("Uncategorized", "")
