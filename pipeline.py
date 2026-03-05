@@ -59,14 +59,12 @@ def _parse_amount(val) -> float:
 
 
 def _kw_match(kw: str, partner: str, details: str) -> bool:
-    """Match keyword against partner name using prefix/substring match (partner
-    names are structured identifiers, so partial prefix matches are intentional,
-    e.g. FLIX matches FLIXBUS.COM). Falls back to booking details with whole-word
-    matching only when partner name is absent."""
-    kw_lower = kw.lower()
+    """Match keyword against partner name first (word-boundary), falling back to
+    booking details when partner name is absent."""
+    pattern = r'\b' + re.escape(kw.lower()) + r'\b'
     if partner:
-        return kw_lower in partner
-    return bool(re.search(r'\b' + re.escape(kw_lower) + r'\b', details))
+        return bool(re.search(pattern, partner))
+    return bool(re.search(pattern, details))
 
 
 def _categorize(row: pd.Series, categories: dict) -> tuple[str, str]:
