@@ -168,6 +168,7 @@ if not cat_spend.empty:
         fig.update_layout(margin=dict(t=20, b=20, l=20, r=20), height=400)
         st.plotly_chart(fig, use_container_width=True)
 
+
     with right:
         display = cat_spend[["category", "spent", "% of total", "budget", "vs budget"]].copy()
         display["spent"] = display["spent"].map(lambda x: f"€{x:,.2f}")
@@ -305,6 +306,22 @@ if selected_category != "All":
     st.subheader(f"{selected_category} — {selected_label} ({len(cat_txns)} transactions)")
 
     if not cat_txns.empty:
+        cat_expense_txns = cat_txns[cat_txns["type"] == "expense"]
+        if cat_expense_txns["subcategory"].ne("").any():
+            sub_spend = (
+                cat_expense_txns.groupby("subcategory")["amount"]
+                .sum().abs().sort_values(ascending=False).reset_index()
+                .rename(columns={"amount": "spent"})
+            )
+            sub_total = sub_spend["spent"].sum()
+            sub_spend["% of category"] = (sub_spend["spent"] / sub_total * 100).round(1) if sub_total > 0 else 0.0
+            sub_display = sub_spend.copy()
+            sub_display["spent"] = sub_display["spent"].map(lambda x: f"€{x:,.2f}")
+            sub_display["% of category"] = sub_display["% of category"].map(lambda x: f"{x}%")
+            sub_display.columns = ["Subcategory", "Spent", "% of Category"]
+            st.markdown("**Subcategory Breakdown**")
+            st.dataframe(sub_display, use_container_width=True, hide_index=True)
+
         cat_detail = cat_txns[["date", "partner_name", "amount", "booking_details"]].copy()
         cat_detail = cat_detail.sort_values("date")
         cat_detail["date"] = cat_detail["date"].dt.strftime("%d.%m.%Y")
