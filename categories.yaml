@@ -1,38 +1,61 @@
 # Category keyword mapping for Erste Bank (George) CSV exports
-# Keywords are matched case-insensitively against Partner Name + Booking details
-# First match wins — place more specific categories above broader ones
-#
-# Customize this file with your own keywords and categories
+# Keywords are matched case-insensitively against Partner Name first,
+# falling back to Booking details only when Partner Name is absent.
+# First match wins — place more specific categories above broader ones.
 
 Adjustments:
-  # One-off corrections (e.g. refunds that need to be sent back)
-  # Add keywords here for transactions that should be excluded from income/expense totals
+  # One-off corrections excluded from income/expense totals
+  # (e.g. a refund you had to send back)
+  - BAMBORA
+
+Savings/Transfers:
+  # Transfer type — excluded from income/expense totals
+  # Add your own names / savings account references here
+  - George-Transfer
 
 Salary:
   - SALARY
-
-Bank Fees:
-  - Kontoführung
-  - Bereitstellung
-  - Bonus Kontoführung
-  - Abschlussbuchung
-
-Insurance:
-  - UNIQA
-  - Versicherung
-  - DONAU Versicherung
-  - WIENER STAEDTISCHE
-  - GENERALI
-  - ALLIANZ
-
-Savings/Transfers:
-  - George-Transfer
+  # Add your employer's name here
+  - Cashback George
 
 Investing:
   - Interactive Brokers
-  - Trade Republic
   - Traderepublic
+  - Trade Republic
+  - YOUPLUS
   - Flatex
+
+RevolutMissingVisibility:
+  - Revolut
+
+Kindergarten:
+  - STADT WIEN
+  - Stadt Wien
+  - Kindergaert
+
+Personal:
+  # One subcategory per family member, with keywords for their payments
+  Me:
+  Partner:
+  KidsActivities:
+
+Housing:
+  Rent:
+    # Add your landlord's name here
+  Maintenance:
+    # Add your property management / building fees here
+  Fees:
+    - FA Österreich
+
+House Utilities:
+  Electricity:
+    - WIEN ENERGIE
+    - Wien Energie
+  InternetPhone:
+    - T-Mobile
+    - A1 TELEKOM
+    - HOT TELEKOM UND SERVICE GMBH
+    - Magenta
 
 Groceries:
   - BILLA
@@ -40,94 +63,194 @@ Groceries:
   - INTERSPAR
   - HOFER
   - LIDL
-  - PENNY
-  - MERKUR
+  - DM
+  - BIPA
+  - MERCADONA
+
 
 Dining:
-  - RESTAURANT
-  - MCDONALDS
-  - BURGER KING
-  - STARBUCKS
-  - KEBAB
-  - KEBAP
-  - BACKEREI
-  - BACKWERK
-  - FELBER
-  - GEIER
-  - JOSEPH BROT
-  - DER MANN
-  - STROECK
-  - STROCK
-  - CAFE
-  - GELATO
-  - DEMEL
-  - TGTG
+  Restaurants:
+    - RESTAURANT
+    - TASTE OF MARRAKECH
+    - AKAKIKO
+    - DELPHI
+    - RUNNING SUSHI
+    - NIHONBASHI
+    - CUCINAALCHIMIA
+    - KOLARIK
+    - EUREST
+    - HECKANTRIEB
+    - KRAMMER-WINDISCH
+    - WALDEMAR
+    - NICE AM MARKT
+    - GOTA X MIRAFLORES
+    - SENADOR
+    - GAMBRINUS
+    - SOLYMAR
+    - GMS GOURMET
+    - ZENUBIA
+    - 25HOURS GASTRO
+    - ROSENROT
+    - ORIENT OCCIDENT
+    - PIAZZA CAFFE
+    - CHUTNEY
+    - LMB FOOD
+    - CASERO
+    - BALI BOWLS
+    - HONU TIKI
+    - ALADIN SHOP
+    - DIREKTVERMARKTUNG
+    - SAJADO
+    - TURKIS
+    - FARBIE
+  FastFood:
+    - MCDONALDS
+    - BURGER KING
+    - KEBAB
+    - KEBAP
+    - RAMEN
+    - WURSTELSTAND
+    - BURGER BROS
+    - TGTG
+    - ADDICTED TO ROCK
+    - SCHONBRUNN BREZEL
+    - DAS EDUARD
+  Cafes:
+    - STARBUCKS
+    - COFFEE FELLOWS
+    - TOPCAFE
+    - CAFE
+    - GELATO
+    - DEMEL
+    - DEMS GOURMET
+    - MEL & KOFFIE
+  Bakeries:
+    - BACKEREI
+    - BACKWERK
+    - FELBER
+    - GEIER
+    - JOSEPH BROT
+    - DER MANN
+    - STROCK
+    - STROECK
+    - FLEISCHEREI
 
 Health:
   - APOTHEKE
   - ORDINATION
   - KINDERARZT
   - Johanniter
+  - Sozial Medizinischer
+
+Insurance:
+  - UNIQA
+  - Versicherung
+  - DONAU Versicherung
+  - Allianz
 
 Shopping:
-  - AMAZON
-  - AMZN
-  - DM-FIL
-  - MUELLER
-  - BIPA
-  - THALIA
-  - IKEA
-  - MEDIA MARKT
-  - OBI BAU
-  - PAGRO
-  - XXXLUTZ
-  - DECATHLON
-  - C&A
-  - TK MAXX
-  - FIELMANN
+  Online:
+    - AMAZON
+    - AMZN
+  HomeImprovement:
+    - IKEA
+    - XXXLUTZ
+    - MEDIA MARKT
+    - OBI BAU
+    - PAGRO
+  Clothing:
+    # DM-FIL and BIPA are matched by Groceries (DM, BIPA) — listed there, not here
+    - MUELLER
+    - TK MAXX
+    - C&A
+    - LEVIS
+    - FIELMANN
+    - DGA MODA
+    - LUSHI BARBERSHOP
+    - FOTOS
+  Sports:
+    - DECATHLON
+    - SPORTSDIRECT
+    - CANYON BICYCLES
+    - SHARKNINJA
+    - DEPORVILLAGE
+    - SP WOOM
+    - ZWEIRAD-CENTER STADLER
+  Other:
+    - THALIA
+    - FOND OF
+    - PLAZA STORE
 
 Transport:
-  - OEBB
-  - WIENER LINIEN
-  - WIEN MOBIL
-  - NEXTBIKE
-  - RYANAIR
-  - FLIX
+  PublicTransport:
+    - OEBB
+    - WIENER LINIEN
+    - WIEN MOBIL
+    - NEXTBIKE
+  Flights:
+    - RYANAIR
+    - FLIX
+  Other:
+    - CICAR
+    - AYUNTAMIENTO
+    - VE-01 MESTRE
 
 Car:
-  - BP TANKSTELLE
-  - SHELL
-  - HANDYPARKE
-  - TIEFGARAGE
-  - PARKPLATZ
+  Fuel:
+    - BP TANKSTELLE
+    - SHELL
+    - MOL
+  Repair:
+    - KFZ FORSTNER EU
+  CarWash:
+    - OBERSCHEIDER CAR WASH
+  Parking:
+    - HANDYPARKE
+    - TIEFGARAGE
+    - PARKPLATZ
 
 Subscriptions:
-  - AMAZON PRIM
-  - AMZNPRIME
-  - T-Mobile
-  - A1 Telekom
-  - FITINN
-  - Fit Fabrik
+  Streaming:
+    - CLAUDE.AI
+  # Mobile phone bills are categorized under House Utilities > InternetPhone
+  Fitness:
+    - FITINN
+    - Fit Fabrik
+  Other:
+    - AMAZON PRIM
+    - AMZNPRIME
 
 Entertainment:
-  - KONZERTHAUS
-  - ALBERTINA
-  - TECHNISCHES MUSEUM
-  - NHM
-  - THERME WIEN
-  - HAYDN KINO
-  - HAYDNKINO
+  Culture:
+    - BUCHEREI
+    - BUECHEREI
+    - KONZERTHAUS
+    - ALBERTINA
+    - TECHNISCHES MUSEUM
+    - NHM
+    - THERME WIEN
+    - HAYDNKINO
+    - HAYDN KINO
+  Kids:
+    - ZOOM KINDERMUSEUM
+    - PLAYWORLD
+    - KINDERSPIELPLATZ
+    - JUMP IN
+    - KINDERBALLETT
+  Trips:
+    - PALMITOS PARK
+    - NATURPARKSHOP
+    - CAMPEGGIO
+    - JUFA
 
-Housing:
-  - FA Österreich
+Bank Fees:
+  - Kontoführung
+  - Bereitstellung
+  - Bonus Kontoführung
+  - Abschlussbuchung
+  - Reklamationen bitte
 
 Cash Withdrawal:
   - ATM
   - AUTOMAT
   - SB-Auszahlung
-
-House Utilities:
-  - WIEN ENERGIE
-
-Rent:
-  # Add your landlord's name here
