@@ -2,7 +2,17 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 
-from pipeline import load_data, load_budgets, load_notes
+import re
+
+from pipeline import (
+    add_local_category,
+    add_local_keyword,
+    category_options,
+    keyword_matches,
+    load_budgets,
+    load_data,
+    load_notes,
+)
 
 st.set_page_config(page_title="Finance Dashboard", layout="wide")
 st.title("Personal Finance Dashboard")
@@ -26,14 +36,21 @@ if df.empty:
 
 budgets = get_budgets()
 
+# Consistent color map across all charts — built once so every chart uses the
+# same color per category regardless of which sections render.
+all_cats = sorted(df["category"].unique())
+palette = px.colors.qualitative.Pastel + px.colors.qualitative.Safe
+color_map = {cat: palette[i % len(palette)] for i, cat in enumerate(all_cats)}
+
 # ---------------------------------------------------------------------------
 # Sidebar — month selector
 # ---------------------------------------------------------------------------
 months = sorted(df["year_month"].unique())
-month_labels = [str(m) for m in months]
+# Newest first in the dropdown; the latest month is selected by default
+month_labels = [str(m) for m in reversed(months)]
 
-selected_label = st.sidebar.selectbox("Month", month_labels, index=len(month_labels) - 1)
-selected_month = months[month_labels.index(selected_label)]
+selected_label = st.sidebar.selectbox("Month", month_labels, index=0)
+selected_month = pd.Period(selected_label, freq="M")
 
 compare = st.sidebar.toggle("Compare with previous month", value=False)
 
@@ -151,11 +168,6 @@ if not cat_spend.empty:
         lambda r: f"€{r['spent'] - r['budget']:+,.2f}" if r["budget"] > 0 else "—", axis=1
     )
     cat_spend["over_budget"] = (cat_spend["budget"] > 0) & (cat_spend["spent"] > cat_spend["budget"])
-
-    # Consistent color map across all charts
-    all_cats = sorted(df["category"].unique())
-    palette = px.colors.qualitative.Pastel + px.colors.qualitative.Safe
-    color_map = {cat: palette[i % len(palette)] for i, cat in enumerate(all_cats)}
 
     left, right = st.columns([1, 1])
 
@@ -351,6 +363,109 @@ if not uncat.empty:
     st.dataframe(uncat_display, use_container_width=True, hide_index=True)
 else:
     st.success("All transactions are categorized for this month.")
+
+# ---------------------------------------------------------------------------
+# Categorize — assign uncategorized partners to a category from the dashboard
+# ---------------------------------------------------------------------------
+if "categorize_saved" in st.session_state:
+    st.success(st.session_state.pop("categorize_saved"))
+
+all_uncat = df[df["category"] == "Uncategorized"]
+if not all_uncat.empty:
+    with st.expander(f"Categorize transactions ({len(all_uncat)} uncategorized in all months)",
+                     expanded=not uncat.empty):
+        st.caption(
+            "Pick a category for each partner and save. The keyword is added to the "
+            "private, gitignored `categories.local.yaml` and applies to all months. "
+            "Shorten the keyword to cover variants (e.g. `BILLA` instead of `BILLA DANKT 123`)."
+        )
+        with st.popover("➕ New category"):
+            with st.form("new_category", clear_on_submit=True):
+                new_cat = st.text_input("Category", placeholder="e.g. Pets")
+                new_sub = st.text_input("Subcategory (optional)", placeholder="e.g. Vet")
+                if st.form_submit_button("Create"):
+                    try:
+                        add_local_category(new_cat, new_sub)
+                        label = f"{new_cat.strip()} › {new_sub.strip()}" if new_sub.strip() else new_cat.strip()
+                        st.session_state["categorize_saved"] = (
+                            f"Created “{label}” — pick it in the “Assign to” column.")
+                        st.rerun()
+                    except ValueError as e:
+                        st.error(str(e))
+
+        scope = st.radio("Show", ["This month", "All months"], horizontal=True,
+                         index=0 if not uncat.empty else 1)
+        source = uncat if scope == "This month" else all_uncat
+
+        # Group by the text the keyword is matched against: partner name, or
+        # booking details when the partner is absent.
+        grouped = (
+            source.assign(
+                match_on=source["partner_name"].where(
+                    source["partner_name"].notna(), source["booking_details"]
+                ).fillna(""),
+                has_partner=source["partner_name"].notna(),
+            )
+            .groupby(["match_on", "has_partner"], as_index=False)
+            .agg(count=("amount", "size"), total=("amount", "sum"))
+            .sort_values(["count", "total"], ascending=[False, True])
+            .reset_index(drop=True)
+        )
+
+        options = category_options()
+        labels = [f"{c} › {s}" if s else c for c, s in options]
+        target_by_label = dict(zip(labels, options))
+
+        editor_df = pd.DataFrame({
+            "Partner / details": grouped["match_on"],
+            "Count": grouped["count"],
+            "Total (€)": grouped["total"].round(2),
+            "Keyword": grouped["match_on"].map(
+                lambda t: re.sub(r"^\W+|\W+$", "", t)[:60]),
+            "Assign to": pd.Series([None] * len(grouped), dtype="object"),
+        })
+        editor_key = f"categorize_editor_{scope}"
+        edited = st.data_editor(
+            editor_df,
+            key=editor_key,
+            hide_index=True,
+            use_container_width=True,
+            disabled=["Partner / details", "Count", "Total (€)"],
+            column_config={
+                "Total (€)": st.column_config.NumberColumn(format="€%.2f"),
+                "Assign to": st.column_config.SelectboxColumn(options=labels),
+            },
+        )
+
+        if st.button("Save categories", type="primary"):
+            to_save = edited[edited["Assign to"].notna()]
+            saved, errors = [], []
+            for i, row in to_save.iterrows():
+                keyword = str(row["Keyword"] or "").strip()
+                partner = grouped.loc[i, "match_on"] if grouped.loc[i, "has_partner"] else None
+                details = None if partner else grouped.loc[i, "match_on"]
+                if not keyword or not keyword_matches(keyword, partner, details):
+                    errors.append(f"`{keyword}` does not match “{row['Partner / details']}”")
+                    continue
+                category, subcategory = target_by_label[row["Assign to"]]
+                try:
+                    add_local_keyword(keyword, category, subcategory)
+                    saved.append(f"`{keyword}` → {row['Assign to']}")
+                except ValueError as e:
+                    errors.append(f"`{keyword}`: {e}")
+            if to_save.empty:
+                st.info("Choose a category in the “Assign to” column first.")
+            for err in errors:
+                st.error(err)
+            if saved:
+                st.cache_data.clear()
+                # Row positions change once saved partners drop out; reset edits
+                st.session_state.pop(editor_key, None)
+                if errors:
+                    st.success("Saved: " + ", ".join(saved) + " — refresh to update the dashboard.")
+                else:
+                    st.session_state["categorize_saved"] = "Saved: " + ", ".join(saved)
+                    st.rerun()
 
 st.divider()
 

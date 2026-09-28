@@ -3,6 +3,15 @@
 # falling back to Booking details only when Partner Name is absent.
 # First match wins — place more specific categories above broader ones.
 
+# Not a category: partners whose Payment Reference column names the real
+# merchant (e.g. transfers to your own Revolut / Trade Republic account with
+# reference "Spotify subscription"). For these, the Payment Reference is matched
+# against the categories below first; if nothing matches, the partner name is used.
+_check_payment_reference:
+  - Revolut
+  - Trade Republic
+  - Traderepublic
+
 Adjustments:
   # One-off corrections excluded from income/expense totals
   # (e.g. a refund you had to send back)
@@ -212,6 +221,8 @@ Car:
 Subscriptions:
   Streaming:
     - CLAUDE.AI
+    - Spotify
+    - Netflix
   # Mobile phone bills are categorized under House Utilities > InternetPhone
   Fitness:
     - FITINN
